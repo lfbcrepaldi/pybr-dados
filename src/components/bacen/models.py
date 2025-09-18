@@ -1,0 +1,6 @@
+from enum import IntEnum
+
+class SGSCodigoSerie(IntEnum):
+    TAXA_JUROS_SELIC = 11
+    TAXA_JUROS_SELIC_ACUMULADA_NO_MES = 4390
+    TAXA_JUROS_SELIC_ANUALIZADA_BASE_252 = 1178

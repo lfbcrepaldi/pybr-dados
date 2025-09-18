@@ -1,0 +1,2 @@
+### 
+GET https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados?formato=json
