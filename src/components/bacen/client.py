@@ -63,3 +63,19 @@ class BacenClient:
         if formato in ['xml', 'atom']:
             return response.text
         return response.json()
+
+    def emissao_moedas_anual(self, **odata_params) -> dict:
+        """Consulta dados de emissão anual de moedas do Banco Central do Brasil.
+
+        Args:
+            odata_params: Parâmetros OData adicionais para a consulta.
+        """
+        BASE_URL = 'https://olinda.bcb.gov.br/olinda/servico/mecir_prog_anual_producao/versao/v1/odata/TodosDadosProducao'
+        params = {
+            **{'$' + k: v for (k, v) in odata_params.items()}
+        }
+
+        response = requests.get(BASE_URL, params=params)
+        if not response.ok:
+            raise BacenAPIError(f'Erro ao acessar API Bacen: {response.status_code}: {response.text}')
+        return response.json()

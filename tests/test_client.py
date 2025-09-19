@@ -175,6 +175,45 @@ class TestBacenClient(unittest.TestCase):
             self.client.expectativas('RelatorioErro')
         self.assertIn('Erro ao acessar API Bacen: 500: Internal Server Error', str(ctx.exception))
 
+    @patch('requests.get')
+    def test_emissao_moedas_anual_default(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {'data': [1, 2, 3]}
+        mock_get.return_value = mock_response
+
+        result = self.client.emissao_moedas_anual()
+        self.assertEqual(result, {'data': [1, 2, 3]})
+        mock_get.assert_called_once()
+        args, kwargs = mock_get.call_args
+        self.assertIn('TodosDadosProducao', args[0])
+        self.assertEqual(kwargs['params'], {})
+
+    @patch('requests.get')
+    def test_emissao_moedas_anual_with_odata_params(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {'odata': 'yes'}
+        mock_get.return_value = mock_response
+
+        result = self.client.emissao_moedas_anual(top=5, filter="ano eq 2023")
+        self.assertEqual(result, {'odata': 'yes'})
+        args, kwargs = mock_get.call_args
+        self.assertEqual(kwargs['params']['$top'], 5)
+        self.assertEqual(kwargs['params']['$filter'], "ano eq 2023")
+
+    @patch('requests.get')
+    def test_emissao_moedas_anual_error_raises_exception(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = False
+        mock_response.status_code = 400
+        mock_response.text = 'Bad Request'
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(BacenAPIError) as ctx:
+            self.client.emissao_moedas_anual()
+        self.assertIn('Erro ao acessar API Bacen: 400: Bad Request', str(ctx.exception))
+
 
 if __name__ == '__main__':
     unittest.main()
