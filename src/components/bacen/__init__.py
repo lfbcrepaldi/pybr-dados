@@ -6,4 +6,5 @@ __all__ = [
     'BacenClient',
     'SGSCodigoSerie',
     'BacenAPIError',
+    'ExpectativasMercadoRelatorio',
 ]

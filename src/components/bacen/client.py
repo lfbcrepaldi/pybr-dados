@@ -5,6 +5,7 @@ from .exceptions import BacenAPIError
 from .models import SGSCodigoSerie, ExpectativasMercadoRelatorio
 
 class BacenClient:
+    """Cliente para acessar a API do Banco Central do Brasil (Bacen)."""
 
     def sgs(
         self, 
@@ -15,6 +16,14 @@ class BacenClient:
         formato: Literal['json', 'csv'] = 'json'
         
     ) -> dict | str:
+        """Consulta séries temporais do SGS (Sistema Gerenciador de Séries Temporais) do Banco Central do Brasil.
+        Args:
+            codigo_serie (SGSCodigoSerie): Código da série temporal a ser consultada.
+            data_inicial (Optional[date], opcional): Data inicial para o filtro. Defaults to None.
+            data_final (Optional[date], opcional): Data final para o filtro. Defaults to None.
+            ultimos (int | None, opcional): Número de registros mais recentes a serem retornados. Defaults to None.
+            formato (Literal['json', 'csv'], opcional): Formato de retorno dos dados. Pode ser 'json' ou 'csv'. Defaults to 'json'.
+        """
         BASE_URL = 'https://api.bcb.gov.br/dados/serie/'
 
         params = {
@@ -35,7 +44,13 @@ class BacenClient:
             return response.text
         return response.json()
 
-    def expectativas(self, relatorio: ExpectativasMercadoRelatorio, formato: Literal['json', 'xml', 'atom'] =  None, **odata_params):
+    def expectativas(self, relatorio: ExpectativasMercadoRelatorio, formato: Literal['json', 'xml', 'atom'] =  None, **odata_params) -> dict | str:
+        """Consulta dados de expectativas de mercado do Banco Central do Brasil.
+
+        Args:
+            relatorio (ExpectativasMercadoRelatorio): Tipo de relatório de expectativas de mercado a ser consultado.
+            formato (Literal['json', 'xml', 'atom'], opcional): Formato de retorno dos dados. Pode ser 'json', 'xml' ou 'atom'.
+        """
         BASE_URL = f'https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/{relatorio}'
         params = {
             '$format': formato,
