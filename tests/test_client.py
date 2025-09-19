@@ -111,6 +111,70 @@ class TestBacenClient(unittest.TestCase):
         self.assertEqual(kwargs['params']['dataFinal'], '31/01/2023')
         self.assertEqual(kwargs['params']['formato'], 'json')
 
+    @patch('requests.get')
+    def test_expectativas_json_default(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {'result': 123}
+        mock_get.return_value = mock_response
+
+        result = self.client.expectativas('RelatorioTeste')
+        self.assertEqual(result, {'result': 123})
+        mock_get.assert_called_once()
+        args, kwargs = mock_get.call_args
+        self.assertIn('RelatorioTeste', args[0])
+        self.assertIn('$format', kwargs['params'])
+        self.assertIsNone(kwargs['params']['$format'])
+
+    @patch('requests.get')
+    def test_expectativas_xml_format(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.text = '<xml>data</xml>'
+        mock_get.return_value = mock_response
+
+        result = self.client.expectativas('RelatorioXML', formato='xml')
+        self.assertEqual(result, '<xml>data</xml>')
+        args, kwargs = mock_get.call_args
+        self.assertEqual(kwargs['params']['$format'], 'xml')
+
+    @patch('requests.get')
+    def test_expectativas_atom_format(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.text = '<atom>data</atom>'
+        mock_get.return_value = mock_response
+
+        result = self.client.expectativas('RelatorioAtom', formato='atom')
+        self.assertEqual(result, '<atom>data</atom>')
+        args, kwargs = mock_get.call_args
+        self.assertEqual(kwargs['params']['$format'], 'atom')
+
+    @patch('requests.get')
+    def test_expectativas_with_odata_params(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.json.return_value = {'odata': True}
+        mock_get.return_value = mock_response
+
+        result = self.client.expectativas('RelatorioOData', top=10, filter="foo eq 'bar'")
+        self.assertEqual(result, {'odata': True})
+        args, kwargs = mock_get.call_args
+        self.assertEqual(kwargs['params']['$top'], 10)
+        self.assertEqual(kwargs['params']['$filter'], "foo eq 'bar'")
+
+    @patch('requests.get')
+    def test_expectativas_error_raises_exception(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = False
+        mock_response.status_code = 500
+        mock_response.text = 'Internal Server Error'
+        mock_get.return_value = mock_response
+
+        with self.assertRaises(BacenAPIError) as ctx:
+            self.client.expectativas('RelatorioErro')
+        self.assertIn('Erro ao acessar API Bacen: 500: Internal Server Error', str(ctx.exception))
+
 
 if __name__ == '__main__':
     unittest.main()
