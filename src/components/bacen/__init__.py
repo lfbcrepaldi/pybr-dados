@@ -1,5 +1,5 @@
 from .client import BacenClient
-from .models import SGSCodigoSerie, ExpectativasMercadoRelatorio
+from .models import SGSCodigoSerie, ExpectativasMercadoRelatorio, PTAXRecursos
 from .exceptions import BacenAPIError
 
 __all__ = [
@@ -7,4 +7,5 @@ __all__ = [
     'SGSCodigoSerie',
     'BacenAPIError',
     'ExpectativasMercadoRelatorio',
+    'PTAXRecursos'
 ]

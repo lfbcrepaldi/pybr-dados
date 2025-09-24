@@ -2,7 +2,7 @@ import requests
 from datetime import date
 from typing import Optional, Literal
 from .exceptions import BacenAPIError
-from .models import SGSCodigoSerie, ExpectativasMercadoRelatorio
+from .models import SGSCodigoSerie, ExpectativasMercadoRelatorio, PTAXRecursos
 
 class BacenClient:
     """Cliente para acessar a API do Banco Central do Brasil (Bacen)."""
@@ -79,3 +79,23 @@ class BacenClient:
         if not response.ok:
             raise BacenAPIError(f'Erro ao acessar API Bacen: {response.status_code}: {response.text}')
         return response.json()
+    
+    def ptax(self, recurso: PTAXRecursos | str, formato: Literal['json', 'xml', 'text/csv', 'text/html'] = 'json', **odata_params) -> dict:
+        """Consulta dados do Ptax do Banco Central do Brasil.
+        Args:
+            recurso (PTAXRecusos | str): Recurso PTAX a ser consultado.
+            formato (Literal['json', 'xml', 'text/csv', 'text/html'], opcional): Formato de retorno dos dados. Pode ser 'json', 'xml', 'text/csv' ou 'text/html'.
+            odata_params: Parâmetros OData adicionais para a consulta.
+        """
+        BASE_URL = f'https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/{recurso}'
+        params = {
+            '$format': formato,
+            **{'$' + k: v for (k, v) in odata_params.items() if v in ['select', 'filter', 'orderby', 'top', 'skip', 'count']},
+        }
+
+        response = requests.get(BASE_URL, params=params)
+        if not response.ok:
+            raise BacenAPIError(f'Erro ao acessar API Bacen: {response.url} {response.status_code}: {response.text}')
+        elif formato in ['xml', 'text/csv', 'text/html']:
+            return response.text
+        return response.json()['value']
