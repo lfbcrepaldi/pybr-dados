@@ -4,6 +4,7 @@ from typing import Any, TypedDict
 
 
 class ODataParametros(TypedDict, total=False):
+    select: str
     top: int
     skip: int
     filter: str

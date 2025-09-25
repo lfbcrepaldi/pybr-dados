@@ -64,7 +64,7 @@ class BacenClient:
             return response.text
         return response.json()
 
-    def emissao_moedas_anual(self, **odata_params) -> dict:
+    def emissao_moedas_anual(self, **odata_params: Unpack[ODataParametros]) -> dict:
         """Consulta dados de emissão anual de moedas do Banco Central do Brasil.
 
         Args:
