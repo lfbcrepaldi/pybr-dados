@@ -1,6 +1,15 @@
 from __future__ import annotations
 from enum import IntEnum, StrEnum
-from typing import Any
+from typing import Any, TypedDict
+
+
+class ODataParametros(TypedDict, total=False):
+    top: int
+    skip: int
+    filter: str
+    format: str
+    inlinecount: str
+    orderby: str
 
 
 class SGSCodigoSerie(IntEnum):

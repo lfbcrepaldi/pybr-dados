@@ -1,8 +1,8 @@
 import requests
 from datetime import date
-from typing import Optional, Literal
+from typing import Optional, Literal, Unpack
 from .exceptions import BacenAPIError
-from .models import SGSCodigoSerie, ExpectativasMercadoRelatorio, PTAXRecursos
+from .models import ODataParametros, SGSCodigoSerie, ExpectativasMercadoRelatorio, PTAXRecursos
 
 class BacenClient:
     """Cliente para acessar a API do Banco Central do Brasil (Bacen)."""
@@ -44,7 +44,7 @@ class BacenClient:
             return response.text
         return response.json()
 
-    def expectativas(self, relatorio: ExpectativasMercadoRelatorio, formato: Literal['json', 'xml', 'atom'] =  None, **odata_params) -> dict | str:
+    def expectativas(self, relatorio: ExpectativasMercadoRelatorio, formato: Literal['json', 'xml', 'atom'] =  None, **odata_params: Unpack[ODataParametros]) -> dict | str:
         """Consulta dados de expectativas de mercado do Banco Central do Brasil.
 
         Args:
@@ -79,8 +79,8 @@ class BacenClient:
         if not response.ok:
             raise BacenAPIError(f'Erro ao acessar API Bacen: {response.status_code}: {response.text}')
         return response.json()
-    
-    def ptax(self, recurso: PTAXRecursos | str, formato: Literal['json', 'xml', 'text/csv', 'text/html'] = 'json', **odata_params) -> dict:
+
+    def ptax(self, recurso: PTAXRecursos | str, formato: Literal['json', 'xml', 'text/csv', 'text/html'] = 'json', **odata_params: Unpack[ODataParametros]) -> dict:
         """Consulta dados do Ptax do Banco Central do Brasil.
         Args:
             recurso (PTAXRecusos | str): Recurso PTAX a ser consultado.
@@ -90,7 +90,7 @@ class BacenClient:
         BASE_URL = f'https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/{recurso}'
         params = {
             '$format': formato,
-            **{'$' + k: v for (k, v) in odata_params.items() if v in ['select', 'filter', 'orderby', 'top', 'skip', 'count']},
+            **{'$' + k: v for (k, v) in odata_params.items()},
         }
 
         response = requests.get(BASE_URL, params=params)
